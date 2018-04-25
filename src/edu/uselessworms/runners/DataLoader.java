@@ -39,7 +39,7 @@ public class DataLoader {
         File cyclefile = new File(filepath);
         Scanner reader = new Scanner(cyclefile);
         cycleNumber = reader.nextInt();
-        numHousesToVisit = Integer.parseInt(reader.next().replace(",",""));
+        reader.next();
         String nextHouse = reader.next();
         String[] nextHouseParts;
         while(!nextHouse.equals("Bart"))
@@ -48,11 +48,9 @@ public class DataLoader {
             nextHouseParts[0] = nextHouseParts[0].substring(0, nextHouseParts[0].length() - 1);
             nextHouseParts[1] = nextHouseParts[1].substring(0, nextHouseParts[1].length() - 1);
             housesToVisit.add(new House(Integer.parseInt(nextHouseParts[0]), Integer.parseInt(nextHouseParts[1]), nextHouseParts[2]));
-            System.out.println(housesToVisit.size());
             nextHouse = reader.next();
             numHousesToVisit++;
         }
-        numHousesToVisit--; // Compensates for the extra iteration for "Bart"
         reader.next();
         bartPackages = reader.nextInt();
         reader.next();

@@ -54,4 +54,10 @@ public class House {
         }
         y = 1000 * street + yOffset;
     }
+    public static int getDistance(House a, House b) {
+        return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
+    }
+    public static int getDistancePoint(House a, int[] b) {
+        return (int) (Math.pow(Math.abs(a.getX() - b[0]),2) + Math.pow(Math.abs(a.getY() - b[1]),2));
+    }
 }

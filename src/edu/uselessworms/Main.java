@@ -14,7 +14,7 @@ public class Main {
         System.out.println("Houses: " + loader.getNumHousesToVisit());
         System.out.println("Bart: " + loader.getBartPackages());
         System.out.println("Lisa: " + loader.getLisaPackages());
-        System.out.println("Houses2: " + loader.getHousesToVisit().size());
+        KMeansClusterer clusterer = new KMeansClusterer(loader.getHousesToVisit(), loader.getNumHousesToVisit() / 100);
+        clusterer.cluster(15);
     }
-
 }

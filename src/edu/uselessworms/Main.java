@@ -14,7 +14,15 @@ public class Main {
         System.out.println("Houses: " + loader.getNumHousesToVisit());
         System.out.println("Bart: " + loader.getBartPackages());
         System.out.println("Lisa: " + loader.getLisaPackages());
-        KMeansClusterer clusterer = new KMeansClusterer(loader.getHousesToVisit(), loader.getNumHousesToVisit() / 100);
-        clusterer.cluster(15);
+        SplitGraphClusterer clusterer = new SplitGraphClusterer(loader.getHousesToVisit(), 25);
+        clusterer.cluster();
+        for(int i = 0; i < 25; i++) {
+            NearestNeighbor q = new NearestNeighbor(clusterer.clusters.get(i));
+            SimulatedAnnealing a = new SimulatedAnnealing(q.run());
+            a.run((int) 500);
+            a.printTime("#" + i + " ");
+        }
+
+
     }
 }

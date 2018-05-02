@@ -5,9 +5,9 @@ import java.util.Arrays;
 import edu.uselessworms.locations.*;
 
 public class KMeansClusterer {
-    ArrayList<House> houses;
+    public ArrayList<House> houses;
     int numberOfMeans = 12;
-
+    public ArrayList<ArrayList<House>> clusters;
     public ArrayList<House> getHouses() {
         return houses;
     }
@@ -34,11 +34,13 @@ public class KMeansClusterer {
     public void cluster(int iterations) { // TODO: Implement
         int[] housesToCluster = new int[houses.size()];
         int[][] centroids = new int[numberOfMeans][2];
+        clusters = new ArrayList<ArrayList<House>>();
         for(int i=0; i<numberOfMeans; i++) // Init with random centroids
         {
             int q = (int) (Math.random() * houses.size());
             centroids[i][0]= houses.get(q).getX();
             centroids[i][1]= houses.get(q).getY();
+            clusters.add(new ArrayList<House>());
         }
         int maxDist = Integer.MAX_VALUE;
         int closestCentroid = -1;
@@ -77,9 +79,9 @@ public class KMeansClusterer {
                 //
                 //System.out.println("Change of X=" + centroidChange[j][i][0] + " / Y=" + centroidChange[j][i][1]);
             }
-        }
-        for(int i=0; i<numberOfMeans; i++) {
-            System.out.println("Centroid#" + i + ": X=" + centroids[i][0] + " Y=" + centroids[i][1]);
+            for(int q = 0; q < houses.size(); q++) {
+                clusters.get(housesToCluster[q]).add(houses.get(q));
+            }
         }
     }
 }

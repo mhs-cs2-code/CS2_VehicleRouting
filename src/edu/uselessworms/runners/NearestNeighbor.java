@@ -9,16 +9,18 @@ public class NearestNeighbor {
         return houses;
     }
 
-    ArrayList<House> houses;
+    private ArrayList<House> houses;
 
     public NearestNeighbor(ArrayList<House> houseL) {
         houses = houseL;
     }
     public ArrayList<House> run() {
-        ArrayList<House> fullList = new ArrayList<House>();
+        ArrayList<House> fullList = new ArrayList<>();
+        if(houses.size() == 0)
+            return fullList;
         fullList.add(houses.get(0));
         houses.remove(0);
-        int shortestDistance = Integer.MAX_VALUE;
+        int shortestDistance;
         int shortestI = -1;
         int dist;
         int currentSize = 1;

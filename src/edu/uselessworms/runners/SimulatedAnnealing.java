@@ -8,6 +8,7 @@ import java.util.ArrayList;
 public class SimulatedAnnealing {
     private double initialTemp = 200;
     private double tempRegression = 0.85;
+    private static final House DISTRO_CENTER = new House(125,25,"A");
 
     public ArrayList<House> getHouses() {
         return houses;
@@ -27,8 +28,8 @@ public class SimulatedAnnealing {
         for(int i = 1; i < houses.size(); i++) {
             energy += House.getDistance(houses.get(i), houses.get(i-1));
         }
-        energy += House.getDistance(new House(125,25,"A"), houses.get(0));
-        energy += House.getDistance(new House(125,25,"A"), houses.get(houses.size()-1));
+        energy += House.getDistance(DISTRO_CENTER, houses.get(0));
+        energy += House.getDistance(DISTRO_CENTER, houses.get(houses.size()-1));
         return energy;
     }
     private int getEnergyOfPath(ArrayList<House> list) {
@@ -38,8 +39,8 @@ public class SimulatedAnnealing {
         for(int i = 1; i < list.size(); i++) {
             energy += House.getDistance(list.get(i), list.get(i-1));
         }
-        energy += House.getDistance(new House(125,25,"A"), list.get(0));
-        energy += House.getDistance(new House(125,25,"A"), list.get(list.size()-1));
+        energy += House.getDistance(DISTRO_CENTER, list.get(0));
+        energy += House.getDistance(DISTRO_CENTER, list.get(list.size()-1));
         return energy;
     }
     public int getTimeOfPath() {
@@ -81,6 +82,21 @@ public class SimulatedAnnealing {
             if(newEnergy < oldEnergy || acceptenceProb((newEnergy - oldEnergy), curTemp) > Math.random())
                 houses = swaped;
         }
+    }
+    public String linePathPrint() {
+        String path = "distro ";
+        House oldHouse = DISTRO_CENTER;
+        for(House i : houses) {
+            path += House.getDistance(oldHouse, i);
+            path += " ";
+            path += i.toString();
+            path += " ";
+            oldHouse = i;
+        }
+        path += House.getDistance(oldHouse, DISTRO_CENTER);
+        path += " ";
+        path += "distro";
+        return path;
     }
     public void printPath() {
         for(int i = 0; i < houses.size(); i++)

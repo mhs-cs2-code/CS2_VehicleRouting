@@ -13,7 +13,13 @@ public class House {
         return y;
     }
 
+    private int ave, str;
+    private String hLoc;
+
     public House(int avenue, int street, String houseloc) {
+        ave = avenue;
+        str = street;
+        hLoc = houseloc;
         x = 200 * avenue - 100;
         int yOffset;
         switch(houseloc.charAt(0))
@@ -59,5 +65,8 @@ public class House {
     }
     public static int getDistancePoint(House a, int[] b) {
         return (int) (Math.pow(Math.abs(a.getX() - b[0]),2) + Math.pow(Math.abs(a.getY() - b[1]),2));
+    }
+    public String toString() {
+        return "(" + ave + "," + str + "," + hLoc + ")";
     }
 }

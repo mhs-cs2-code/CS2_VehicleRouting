@@ -20,6 +20,7 @@ public class Solver {
     private static final int FEET_PER_MILE = 5000;
     private static final String BASE_FILE_PATH = "\\src\\edu\\uselessworms\\";
     private static final String BASE_SAVE_PATH = "solvedData\\";
+    private static final String BASE_OPEN_PATH = "cycleData\\";
     static public NumberFormat moneyFormat = NumberFormat.getCurrencyInstance();
     private PrintWriter problemWriter;
 
@@ -125,7 +126,7 @@ public class Solver {
     }
     public void addAndRunCycle(String filePath) throws FileNotFoundException, UnsupportedEncodingException {
         DataLoader data = new DataLoader();
-        data.loadFile(System.getProperty("user.dir") + BASE_FILE_PATH + filePath);
+        data.loadFile(System.getProperty("user.dir") + BASE_FILE_PATH + BASE_OPEN_PATH + filePath);
         double cyclePrice = this.calculateCycle(data);
         totalPrice += cyclePrice;
         cycleID += 1;

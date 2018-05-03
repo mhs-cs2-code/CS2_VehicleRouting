@@ -96,6 +96,7 @@ public class SimulatedAnnealing {
         path += House.getDistance(oldHouse, DISTRO_CENTER);
         path += " ";
         path += "distro";
+        path += " -- time: " + getTimeOfPath() + " -- employee cost " + getEmployeeCost();
         return path;
     }
     public void printPath() {

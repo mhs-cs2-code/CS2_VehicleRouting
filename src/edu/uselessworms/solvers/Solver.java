@@ -14,9 +14,9 @@ import java.util.Collections;
 public class Solver {
     private static final int TRUCK_OWN_PRICE = 100000;
     private static final int TRUCK_RENT_PRICE = 15000;
-    private static final int HOUSES_PER_TRUCK = 230;
+    private static final int HOUSES_PER_TRUCK = 550;
     private static final double MILES_PER_DOLLER_FUEL = 1000.0;
-    private static final int SIMULATED_ANNEALING_ITERATIONS = 0;
+    private static final int SIMULATED_ANNEALING_ITERATIONS = 30000;
     private static final int FEET_PER_MILE = 5000;
     private static final String BASE_FILE_PATH = "\\src\\edu\\uselessworms\\";
     private static final String BASE_SAVE_PATH = "solvedData\\";
@@ -53,10 +53,10 @@ public class Solver {
         packagesDelivered = data.getBartPackages() + data.getLisaPackages() + data.getNumHousesToVisit();
         PrintWriter cyclewriter = new PrintWriter(System.getProperty("user.dir") + BASE_FILE_PATH + BASE_SAVE_PATH + "solved" + cycleID + ".txt", "UTF-8");
         saveAndOutput(problemWriter,"");
-        saveAndOutput(problemWriter, cyclewriter,"Cycle #" + cycleID);
+        saveAndOutput(problemWriter, cyclewriter,"Cycle #" + cycleID + " (" + data.getNumHousesToVisit() + ")");
         saveAndOutput(problemWriter, cyclewriter,"------------------------------------------");
         // Calculate Number of Clusters to Form, about 130 houses per truck
-        int numClusters  = data.getNumHousesToVisit() / HOUSES_PER_TRUCK;
+        int numClusters  = (int) Math.ceil(data.getNumHousesToVisit() / HOUSES_PER_TRUCK);
         numClusters = (numClusters % 2 == 0) ? numClusters : numClusters + 1; // Make # of clusters even
         SplitGraphClusterer clusterer = new SplitGraphClusterer(data.getHousesToVisit(), numClusters);
         clusterer.cluster();
@@ -64,12 +64,12 @@ public class Solver {
 
         for(int i = 0; i < numClusters; i++) {
             NearestNeighbor q = new NearestNeighbor(clusterer.clusters.get(i));
-            SimulatedAnnealing a = new SimulatedAnnealing(q.run());
+            SimulatedAnnealing a = new SimulatedAnnealing(q.run(),0);
             a.run(SIMULATED_ANNEALING_ITERATIONS);
             employeeCost += a.getEmployeeCost(); // employee cost
             gasPrice += a.getEnergyOfPath() / MILES_PER_DOLLER_FUEL; // $5 per mile, $1 per 1000ft
-            if(a.getTimeOfPath() / 60.0 > 23) {
-                System.out.println("INVALID");
+            if(a.getTimeOfPath() / 60.0 > 24) {
+                System.out.println("" + (i+1) + " INVALID");
             }
             totalTime += a.getTimeOfPath();
             distances[i] = a.getEnergyOfPath() / FEET_PER_MILE;

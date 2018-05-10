@@ -9,7 +9,7 @@ public class Main {
 
     public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
         System.out.println("Welcome to Homerville Vehicle Routing");
-        Solver problemSolver = new Solver(10, 9);
+        Solver problemSolver = new Solver(10, 6);
         problemSolver.addAndRunCycle("cycle1.txt");
         problemSolver.addAndRunCycle("cycle2.txt");
         problemSolver.addAndRunCycle("cycle3.txt");
@@ -21,8 +21,7 @@ public class Main {
         problemSolver.addAndRunCycle("cycle9.txt");
         problemSolver.addAndRunCycle("cycle10.txt");
 
-        problemSolver.addTruckWork();
-        //problemSolver.addAndRunCycle("cycle11.txt");
+        problemSolver.addTruckWork(); // add cost for truck maitenence
         System.out.println("Total Price: " + Solver.moneyFormat.format(problemSolver.getTotalPrice()));
         problemSolver.end();
 

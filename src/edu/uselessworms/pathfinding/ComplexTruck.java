@@ -1,4 +1,4 @@
-package edu.uselessworms.runners;
+package edu.uselessworms.pathfinding;
 
 public class ComplexTruck {
     private static int DistDistroToBart = 47400; // Minutes

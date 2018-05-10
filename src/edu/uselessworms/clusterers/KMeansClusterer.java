@@ -1,4 +1,4 @@
-package edu.uselessworms.runners;
+package edu.uselessworms.clusterers;
 import java.util.ArrayList;
 import java.util.Arrays;
 

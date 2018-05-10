@@ -1,5 +1,7 @@
 package edu.uselessworms.solvers;
 
+import edu.uselessworms.locations.House;
+import edu.uselessworms.pathfinding.SimulatedAnnealing;
 import edu.uselessworms.runners.*;
 
 import java.io.FileNotFoundException;
@@ -8,14 +10,12 @@ import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 public class Solver {
     private static final int TRUCK_OWN_PRICE = 100000;
     private static final int TRUCK_RENT_PRICE = 15000;
-    private static final int HOUSES_PER_TRUCK = 550;
-    private static final double MILES_PER_DOLLER_FUEL = 1000.0;
+    private static final int HOUSES_PER_TRUCK = 450;
+    private static final double MILES_PER_DOLLAR_FUEL = 1000.0;
     private static final int SIMULATED_ANNEALING_ITERATIONS = 30000;
     private static final int FEET_PER_MILE = 5000;
     private static final String BASE_FILE_PATH = "\\src\\edu\\uselessworms\\";
@@ -50,44 +50,30 @@ public class Solver {
     private double calculateCycle(DataLoader data) throws FileNotFoundException, UnsupportedEncodingException {
         double cycleCost = 0;
         double gasPrice=0, employeeCost=0, totalTime=0, packagesDelivered;
+        ArrayList<House> houses = new ArrayList<>(data.getHousesToVisit());
         packagesDelivered = data.getBartPackages() + data.getLisaPackages() + data.getNumHousesToVisit();
         PrintWriter cyclewriter = new PrintWriter(System.getProperty("user.dir") + BASE_FILE_PATH + BASE_SAVE_PATH + "solved" + cycleID + ".txt", "UTF-8");
         saveAndOutput(problemWriter,"");
         saveAndOutput(problemWriter, cyclewriter,"Cycle #" + cycleID + " (" + data.getNumHousesToVisit() + ")");
         saveAndOutput(problemWriter, cyclewriter,"------------------------------------------");
-        // Calculate Number of Clusters to Form, about 130 houses per truck
-        int numClusters  = (int) Math.ceil(data.getNumHousesToVisit() / HOUSES_PER_TRUCK);
-        numClusters = (numClusters % 2 == 0) ? numClusters : numClusters + 1; // Make # of clusters even
-        SplitGraphClusterer clusterer = new SplitGraphClusterer(data.getHousesToVisit(), numClusters);
-        clusterer.cluster();
-        double[] distances = new double[numClusters+1];
+        int totalDistance = 0;
+        double truckTime = 0;
+        int trucksUsed = 0;
+        ArrayList<ArrayList<House>> paths = new ArrayList<>();
+        while(truckTime < 1440) {
+            trucksUsed++;
+            paths.add(new ArrayList<>());
+            paths.get(trucksUsed-1).add(SimulatedAnnealing.DISTRO_CENTER);
+            int closestHouse = getClosest(houses, paths.get(trucksUsed-1).get(paths.get(trucksUsed-1).size()-1));
+            int dist = House.getDistance(paths.get(trucksUsed-1).get(paths.get(trucksUsed-1).size()-1), houses.get(closestHouse)) / 2000;
+            totalDistance += dist;
+            truckTime += dist/2000.0;
+            totalTime += dist/2000.0;
+            paths.get(trucksUsed-1).add(houses.get(closestHouse));
+            houses.remove(closestHouse);
+        }
 
-        for(int i = 0; i < numClusters; i++) {
-            NearestNeighbor q = new NearestNeighbor(clusterer.clusters.get(i));
-            SimulatedAnnealing a = new SimulatedAnnealing(q.run(),0);
-            a.run(SIMULATED_ANNEALING_ITERATIONS);
-            employeeCost += a.getEmployeeCost(); // employee cost
-            gasPrice += a.getEnergyOfPath() / MILES_PER_DOLLER_FUEL; // $5 per mile, $1 per 1000ft
-            if(a.getTimeOfPath() / 60.0 > 24) {
-                System.out.println("" + (i+1) + " INVALID");
-            }
-            totalTime += a.getTimeOfPath();
-            distances[i] = a.getEnergyOfPath() / FEET_PER_MILE;
-            cyclewriter.println("Cluster #" + (i+1) + " - " + a.linePathPrint());
-        }
-        ComplexTruck complexTruckSolver = new ComplexTruck(data.getBartPackages(), data.getLisaPackages());
-        complexTruckSolver.solve();
-        employeeCost += complexTruckSolver.getEmployeeCost();
-        gasPrice += complexTruckSolver.getTruckDistance() / MILES_PER_DOLLER_FUEL;
-        totalTime += complexTruckSolver.getTruckTime();
-        distances[numClusters] = complexTruckSolver.getTruckDistance();
-        Arrays.sort(distances);
-        Collections.sort(milesOwned);
-        Collections.reverse(milesOwned); // add lowest miles to truck with most miles - minimize work
-        for(int i=0; i < Math.min(numClusters, ownedTrucks); i++) {
-            milesOwned.set(i, milesOwned.get(i) + distances[i]);
-        }
-        int numRented = Math.max(0, numClusters-ownedTrucks+1);
+        int numRented = Math.max(0, ownedTrucks-trucksUsed);
         int costRented = numRented  * TRUCK_RENT_PRICE;
         cycleCost += costRented;
         cycleCost += gasPrice;
@@ -96,13 +82,16 @@ public class Solver {
         saveAndOutput(problemWriter, cyclewriter,"Purchased Trucks: $0");
         saveAndOutput(problemWriter, cyclewriter,"Rented Trucks (" + numRented + "): " + moneyFormat.format(costRented));
         saveAndOutput(problemWriter, cyclewriter,"Gas Price: " + moneyFormat.format(gasPrice));
-        saveAndOutput(problemWriter, cyclewriter,"Employee Cost (" + (numClusters+1) + "): " + moneyFormat.format(employeeCost));
+        saveAndOutput(problemWriter, cyclewriter,"Employee Cost (" + (trucksUsed) + "): " + moneyFormat.format(employeeCost));
         saveAndOutput(problemWriter, cyclewriter,"Packages Delivered: " + packagesDelivered);
         saveAndOutput(problemWriter, cyclewriter,"Total Time (hours): " + new DecimalFormat("#0.00").format(totalTime / 60.0));
         saveAndOutput(problemWriter, cyclewriter,"Total Price For Cycle #" + cycleID + ": " + moneyFormat.format(cycleCost));
         cyclewriter.close();
         return cycleCost;
     }
+    private int getClosest(ArrayList<House> housesAvailable, House from) { // TODO IMPLEMENTs
+        return 0;
+    } // TODO: Implement
     public void addTruckWork() {
         double added= 0;
         for(int i=0; i < ownedTrucks; i++) {
@@ -136,9 +125,6 @@ public class Solver {
         return totalPrice;
     }
 
-    public void setTotalPrice(double totalPrice) {
-        this.totalPrice = totalPrice;
-    }
     public void end() {
         problemWriter.println();
         problemWriter.println("Total Price: " + moneyFormat.format(totalPrice));

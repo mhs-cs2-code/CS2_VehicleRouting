@@ -1,4 +1,4 @@
-package edu.uselessworms.runners;
+package edu.uselessworms.clusterers;
 
 import edu.uselessworms.locations.House;
 
@@ -10,6 +10,11 @@ import java.util.Comparator;
 public class SplitGraphClusterer {
     private ArrayList<House> houses;
     public ArrayList<ArrayList<House>> clusters = new ArrayList<>();
+
+    public ArrayList<ArrayList<House>> getClusters() {
+        return clusters;
+    }
+
     private int numberOfClusters;
     private int[] XY = new int[2];
     private int[] xyClusterSize = new int[2];
@@ -20,8 +25,18 @@ public class SplitGraphClusterer {
             return (o1.size() > o2.size()) ? 1 : -1;
         }
     }
-    public SplitGraphClusterer(ArrayList<House> h, int nOC) {
+    public SplitGraphClusterer(ArrayList<House> h) {
         houses = h;
+    }
+    private int whichCluster(int x, int y) {
+        int xCluster, yCluster;
+        xCluster = x /  xyClusterSize[0];
+        xCluster = (xCluster == XY[0] ? XY[0]-1: xCluster);
+        yCluster = y / xyClusterSize[1];
+        yCluster = (yCluster == XY[1] ? XY[1]-1: yCluster);
+        return xCluster*XY[1] + yCluster;
+    }
+    public void cluster(int nOC) {
         numberOfClusters = nOC;
         int xClusters = (int) Math.sqrt(numberOfClusters);
         while((numberOfClusters % xClusters) != 0) {
@@ -32,16 +47,6 @@ public class SplitGraphClusterer {
         XY[1] = yClusters;
         xyClusterSize[0] = 50000/xClusters;
         xyClusterSize[1] = 50000/yClusters;
-    }
-    private int whichCluster(int x, int y) {
-        int xCluster, yCluster;
-        xCluster = x /  xyClusterSize[0];
-        xCluster = (xCluster == XY[0] ? XY[0]-1: xCluster);
-        yCluster = y / xyClusterSize[1];
-        yCluster = (yCluster == XY[1] ? XY[1]-1: yCluster);
-        return xCluster*XY[1] + yCluster;
-    }
-    public void cluster() {
         ArrayList<ArrayList<House>> midClusters = new ArrayList<>();
         int formSegs = (int) Math.ceil(Math.sqrt(numberOfClusters));
 

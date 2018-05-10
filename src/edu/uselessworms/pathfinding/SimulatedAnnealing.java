@@ -1,14 +1,15 @@
-package edu.uselessworms.runners;
+package edu.uselessworms.pathfinding;
 
 import edu.uselessworms.locations.House;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class SimulatedAnnealing {
     private double initialTemp = 200;
     private double tempRegression = 0.85;
-    private static final House DISTRO_CENTER = new House(125,25,"A");
+    public static final House DISTRO_CENTER = new House(125,25,"A");
 
     public ArrayList<House> getHouses() {
         return houses;
@@ -46,22 +47,25 @@ public class SimulatedAnnealing {
     public int getTimeOfPath() {
         if(houses.size() == 0)
             return 0;
-        int time = 0;
-        time += (getEnergyOfPath() / 2000.0) + houses.size();
-        return time;
+        double time = 0;
+        time += (getEnergyOfPath() / 2000.0) + 0.5;
+        return (int) time;
     }
     public int getEmployeeCost() {
         if(houses.size() == 0)
             return 0;
         int time = getTimeOfPath();
-        double hours = time/60.0;
+        double hours = (time/60.0);
+        //System.out.println(hours);
         if(hours > 8) {
-            return 240 + (int) Math.ceil(hours-8)*45;
+            return 240 + (int) (hours-8)*45;
         }
-        return (int) Math.ceil(hours)*30;
+        return (int) (hours)*30;
     }
-    public SimulatedAnnealing(ArrayList<House> houseList) {
+    public SimulatedAnnealing(ArrayList<House> houseList, int shuffle) {
         houses = houseList;
+        if(shuffle!=0)
+            Collections.shuffle(houses);
     }
 
     public void run(int iterations) {
@@ -70,21 +74,24 @@ public class SimulatedAnnealing {
 
         for(int i=0; i<iterations; i++) {
             curTemp = this.tempAtI(i);
-            ArrayList<House> swaped = houses;
+            ArrayList<House> swaped = new ArrayList<>(houses);
             swapA = (int) (Math.random() * houses.size());
             swapB = (int) (Math.random() * houses.size());
-            House swapAA = houses.get(swapA);
-            House swapBB = houses.get(swapB);
-            swaped.set(swapA, swapBB);
-            swaped.set(swapB, swapAA);
+            swaped.set(swapA, houses.get(swapB));
+            swaped.set(swapB, houses.get(swapA));
             oldEnergy = getEnergyOfPath();
             newEnergy = getEnergyOfPath(swaped);
-            if(newEnergy < oldEnergy || acceptenceProb((newEnergy - oldEnergy), curTemp) > Math.random())
+            if(newEnergy < oldEnergy)// || acceptenceProb((newEnergy - oldEnergy), curTemp) > Math.random())
                 houses = swaped;
+            //System.out.println(oldEnergy);
         }
     }
     public String linePathPrint() {
-        String path = "distro ";
+        String path = "(";
+        path += houses.size();
+        path += ") (";
+        path += getTimeOfPath() / 60.0;
+        path += ") distro ";
         House oldHouse = DISTRO_CENTER;
         for(House i : houses) {
             path += House.getDistance(oldHouse, i);

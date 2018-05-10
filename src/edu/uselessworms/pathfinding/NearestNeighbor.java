@@ -1,17 +1,18 @@
-package edu.uselessworms.runners;
+package edu.uselessworms.pathfinding;
 
 import edu.uselessworms.locations.House;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class NearestNeighbor {
-    public ArrayList<House> getHouses() {
+    public List<House> getHouses() {
         return houses;
     }
 
-    private ArrayList<House> houses;
+    private List<House> houses;
 
-    public NearestNeighbor(ArrayList<House> houseL) {
+    public NearestNeighbor(List<House> houseL) {
         houses = houseL;
     }
     public ArrayList<House> run() {

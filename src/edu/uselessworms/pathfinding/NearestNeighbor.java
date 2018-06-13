@@ -3,42 +3,46 @@ package edu.uselessworms.pathfinding;
 import edu.uselessworms.locations.House;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class NearestNeighbor {
-    public List<House> getHouses() {
-        return houses;
+public class NearestNeighbor { // By Steph
+    private final int MAX_TIME = 1330;
+    ArrayList<House> availableHouses = new ArrayList<>();
+    ArrayList<House> currentPath = new ArrayList<>();
+    private int numberEmployeePerTruck;
+    public NearestNeighbor(ArrayList<House> houses, int nep) {
+        availableHouses = new ArrayList<>(houses);
+        numberEmployeePerTruck = nep;
     }
 
-    private List<House> houses;
+    public void getNextPath() {
+        double currentTime = 0;
+        currentPath = new ArrayList<>();
+        currentPath.add(SimulatedAnnealing.DISTRO_CENTER);
+        while(currentTime < MAX_TIME && availableHouses.size() != 0) {
+            int minID = -1;
+            int minDistance = Integer.MAX_VALUE;
+            for(int i = 0; i < availableHouses.size(); i++) {
+                int dist = House.getDistance(availableHouses.get(i), currentPath.get(currentPath.size()-1));
 
-    public NearestNeighbor(List<House> houseL) {
-        houses = houseL;
-    }
-    public ArrayList<House> run() {
-        ArrayList<House> fullList = new ArrayList<>();
-        if(houses.size() == 0)
-            return fullList;
-        fullList.add(houses.get(0));
-        houses.remove(0);
-        int shortestDistance;
-        int shortestI = -1;
-        int dist;
-        int currentSize = 1;
-        while(houses.size() > 0) {
-            shortestDistance = Integer.MAX_VALUE;
-            for(int i=0; i<houses.size(); i++) {
-                dist = House.getDistance(houses.get(i), fullList.get(currentSize-1));
-                if(dist < shortestDistance) {
-                    shortestI = i;
-                    shortestDistance = dist;
+                if(minDistance > dist) {
+                    minDistance = dist;
+                    minID = i;
                 }
             }
-            fullList.add(houses.get(shortestI));
-            houses.remove(shortestI);
-
+            currentPath.add(availableHouses.get(minID));
+            availableHouses.remove(minID);
+            currentTime += House.getDistance(currentPath.get(currentPath.size()-1), currentPath.get(currentPath.size()-2)) / 2000.0;
+            currentTime += (.5/numberEmployeePerTruck);
+            //System.out.println(currentTime);
         }
-
-        return fullList;
+    }
+    public ArrayList<House> getPath() {
+        return new ArrayList<>(currentPath);
+    }
+    public ArrayList<House> getPathWithoutDistro() {
+        return new ArrayList<>(currentPath.subList(1, currentPath.size()));
+    }
+    public int housesLeft() {
+        return availableHouses.size();
     }
 }

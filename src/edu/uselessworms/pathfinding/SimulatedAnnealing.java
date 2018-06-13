@@ -1,27 +1,41 @@
 package edu.uselessworms.pathfinding;
 
 import edu.uselessworms.locations.House;
+import edu.uselessworms.solvers.Solver;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 
+
 public class SimulatedAnnealing {
-    private double initialTemp = 200;
-    private double tempRegression = 0.85;
-    public static final House DISTRO_CENTER = new House(125,25,"A");
+    public static final House BART_COMPLEX;
+    public static final House LISA_COMPLEX;
+    public static final House DISTRO_CENTER;
+    static {
+        BART_COMPLEX = new House(3, 2, "A");
+        LISA_COMPLEX = new House(34, 149, "A");
+        DISTRO_CENTER = new House(125, 25, "A");
+    }
+
+    private int numEmployeeTruck;
+    private int bartNeeded; // num of packages
+    private int lisaNeeded;
+    private ArrayList<House> houses;
 
     public ArrayList<House> getHouses() {
         return houses;
     }
 
-    private ArrayList<House> houses;
     private double tempAtI(int i) {
+        double initialTemp = 200;
+        double tempRegression = 0.85;
         return initialTemp * Math.pow(tempRegression, i);
     }
+
     private double acceptenceProb(double energyDelta, double temp) {
         return 1 / (1 + Math.exp(energyDelta / temp));
     }
+
     public int getEnergyOfPath() {
         if(houses.size() == 0)
             return 0;
@@ -48,7 +62,7 @@ public class SimulatedAnnealing {
         if(houses.size() == 0)
             return 0;
         double time = 0;
-        time += (getEnergyOfPath() / 2000.0) + 0.5;
+        time += (getEnergyOfPath() / Solver.FEET_PER_MINUTE) + (0.5 / numEmployeeTruck)*(bartNeeded+lisaNeeded) + (1/numEmployeeTruck)*(houses.size()-2);
         return (int) time;
     }
     public int getEmployeeCost() {
@@ -62,16 +76,25 @@ public class SimulatedAnnealing {
         }
         return (int) (hours)*30;
     }
+    public SimulatedAnnealing(ArrayList<House> houseList) {
+        houses = houseList;
+        numEmployeeTruck = -1;
+        bartNeeded = 0;
+        lisaNeeded = 0;
+    }
     public SimulatedAnnealing(ArrayList<House> houseList, int shuffle) {
         houses = houseList;
         if(shuffle!=0)
             Collections.shuffle(houses);
+        numEmployeeTruck = -1;
+        bartNeeded = 0;
+        lisaNeeded = 0;
     }
 
-    public void run(int iterations) {
+    public void run(int iterations, int nep) {
         double curTemp;
         int swapA, swapB, newEnergy, oldEnergy;
-
+        numEmployeeTruck = nep;
         for(int i=0; i<iterations; i++) {
             curTemp = this.tempAtI(i);
             ArrayList<House> swaped = new ArrayList<>(houses);
@@ -104,6 +127,7 @@ public class SimulatedAnnealing {
         path += " ";
         path += "distro";
         path += " -- time: " + getTimeOfPath() + " -- employee cost " + getEmployeeCost();
+        path += " -- distance: " + getEnergyOfPath()/5000.0;
         return path;
     }
     public void printPath() {
@@ -115,6 +139,27 @@ public class SimulatedAnnealing {
                 System.out.println("House: (" + houses.get(i).getX() + "," + houses.get(i).getY() + ") " + House.getDistance(houses.get(i), houses.get(i-1)));
 
         }
+    }
+    private int findIndexClosestTo(House x) {
+        x = new House(x);
+        int i = 0;
+        int minDist = Integer.MAX_VALUE;
+        int minID = -1;
+        for(House q : new ArrayList<>(houses)) {
+            int d = House.getDistance(new House(q), new House(x));
+            if(d > 1 && d < minDist) {
+                minDist = d;
+                minID = i;
+            }
+            i++;
+        }
+
+        return minID;
+    }
+    public void addComplexes(int bart, int lisa) {
+        bartNeeded = bart;
+        lisaNeeded = lisa;
+
     }
     public void printDistance(String add) {
         System.out.println(add + "Total Distance (Miles) : " + getEnergyOfPath() / 5000.0);

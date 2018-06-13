@@ -15,12 +15,41 @@ public class House {
 
     private int ave, str;
     private String hLoc;
-
-    public House(int avenue, int street, String houseloc) {
-        ave = avenue;
-        str = street;
+    public House(House q) {
+        x = q.getX();
+        y = q.getY();
+        ave = (x+100)/200;
+        str = ((int) (y/1000));
+        int offset = y-str;
+        switch(offset)
+        {
+            case 50:
+                hLoc = "A";
+            case 150:
+                hLoc = "B";
+            case 250:
+                hLoc = "C";
+            case 350:
+                hLoc = "D";
+            case 450:
+                hLoc = "E";
+            case 550:
+                hLoc = "F";
+            case 650:
+                hLoc = "G";
+            case 750:
+                hLoc = "H";
+            case 850:
+                hLoc = "I";
+            case 950:
+                hLoc = "J";
+        }
+    }
+    public House(int street, int avenue, String houseloc) {
+        ave = street;
+        str = avenue;
         hLoc = houseloc;
-        x = 200 * avenue - 100;
+        x = 200 * street - 100;
         int yOffset;
         switch(houseloc.charAt(0))
         {
@@ -58,7 +87,7 @@ public class House {
                 yOffset = 0;
                 break;
         }
-        y = 1000 * street + yOffset;
+        y = 1000 * (avenue-1) + yOffset;
     }
     public static int getDistance(House a, House b) {
         return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
@@ -68,5 +97,8 @@ public class House {
     }
     public String toString() {
         return "(" + ave + "," + str + "," + hLoc + ")";
+    }
+    public static boolean isSame(House a, House b) {
+        return (a.getX() == b.getX() && a.getY() == b.getY());
     }
 }
